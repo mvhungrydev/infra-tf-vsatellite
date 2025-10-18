@@ -8,7 +8,7 @@ VSatellite is a component of CyberArk's Machine Identity Security (MIS) platform
 
 - **Dynamically discovers** existing VPC and subnets using project tags
 - Deploys an EC2 instance with the required specifications
-- Automatically installs and configures VSatellite
+- **Prepares the system** with prerequisites and downloads vsatctl
 - Sets up proper security groups and IAM roles
 - **Uses AWS Session Manager** for secure access (no SSH keys needed)
 - Configures CloudWatch logging
@@ -103,7 +103,18 @@ This configuration ensures VSatellite requirements are met:
 
 - `use_install_dir_option`: Use consolidated installation directory (default: true)
 - `vsatellite_install_dir`: Custom installation path (default: /opt/vsatellite)
-- `vsatellite_version`: Specific version (leave empty for latest)
+
+## What This Deployment Does
+
+The user data script automatically:
+
+- Sets up drive spaces and directories
+- Installs system prerequisites (curl, wget, jq, etc.)
+- Downloads vsatctl to `/tmp/vsatctl`
+- Configures system limits and kernel parameters
+- Creates status and log files
+
+**Note**: This deployment prepares the system but does NOT automatically install VSatellite. You'll need to run the installation manually after deployment.
 
 ## Post-Deployment Steps
 
@@ -118,19 +129,31 @@ After successful deployment:
 2. **Check installation status**:
 
    ```bash
-   sudo cat /var/log/vsatellite-install.log
-   sudo cat /var/log/vsatellite-status.json
+   sudo cat /var/log/vsatellite-setup.log
+   sudo cat /var/log/vsatellite-setup-status.json
    ```
 
-3. **Configure VSatellite with CyberArk**:
+3. **Run VSatellite preflight checks**:
 
    ```bash
-   sudo vsatctl configure --api-key <your-api-key> --tenant-url <your-tenant-url>
+   sudo /tmp/vsatctl preflight
    ```
 
-4. **Verify VSatellite status**:
+4. **Install VSatellite**:
+
    ```bash
-   sudo vsatctl status
+   sudo /tmp/vsatctl install
+   ```
+
+5. **Configure VSatellite with CyberArk**:
+
+   ```bash
+   sudo /tmp/vsatctl configure --api-key <your-api-key> --tenant-url <your-tenant-url>
+   ```
+
+6. **Verify VSatellite status**:
+   ```bash
+   sudo /tmp/vsatctl status
    ```
 
 ## Security Considerations
@@ -153,21 +176,22 @@ After successful deployment:
 
 ### Installation Issues
 
-1. Check the installation log via Session Manager:
+1. Check the setup log via Session Manager:
 
    ```bash
-   sudo tail -f /var/log/vsatellite-install.log
+   sudo tail -f /var/log/vsatellite-setup.log
    ```
 
-2. Verify system requirements:
+2. Check the setup status:
 
    ```bash
-   sudo vsatctl preflight
+   sudo cat /var/log/vsatellite-setup-status.json
    ```
 
-3. Check Docker status:
+3. Verify system requirements:
+
    ```bash
-   sudo systemctl status docker
+   sudo /tmp/vsatctl preflight
    ```
 
 ### Infrastructure Discovery Issues
@@ -210,16 +234,16 @@ After successful deployment:
 
 ### VSatellite Service
 
-1. Check VSatellite status:
+1. Check VSatellite status (after installation):
 
    ```bash
-   sudo vsatctl status
-   sudo vsatctl diagnostics
+   sudo /tmp/vsatctl status
+   sudo /tmp/vsatctl diagnostics
    ```
 
 2. Restart VSatellite if needed:
    ```bash
-   sudo vsatctl restart
+   sudo /tmp/vsatctl restart
    ```
 
 ## Outputs
@@ -253,10 +277,10 @@ terraform destroy
 ## Key Features Summary
 
 🔍 **Dynamic Discovery**: Automatically finds VPC and subnets by project tags
-🔒 **Secure Access**: AWS Session Manager (no SSH keys required)
+🔒 **Secure Access**: AWS Session Manager (no SSH keys required)  
 🌍 **Regional Control**: Access restricted to us-east-1 only
 📊 **Monitoring**: CloudWatch integration for logs and metrics
-🔧 **Automated Setup**: Complete VSatellite installation via user data
+🔧 **Automated Prep**: Prerequisites setup and vsatctl download via user data
 🏗️ **Infrastructure**: Proper security groups, IAM roles, and encryption
 
 ## Support

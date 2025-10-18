@@ -213,11 +213,10 @@ resource "aws_instance" "vsatellite" {
   }
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
-    vsatellite_version = var.vsatellite_version
-    install_dir        = var.vsatellite_install_dir
-    use_install_dir    = var.use_install_dir_option
-    environment        = var.environment
-    use_ubuntu         = var.use_ubuntu
+    install_dir     = var.vsatellite_install_dir
+    use_install_dir = var.use_install_dir_option
+    environment     = var.environment
+    use_ubuntu      = var.use_ubuntu
   }))
 
   tags = merge(var.tags, {

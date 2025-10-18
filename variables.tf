@@ -90,12 +90,6 @@ variable "tags" {
 }
 
 # VSatellite specific variables
-variable "vsatellite_version" {
-  description = "Version of VSatellite to install (latest if empty)"
-  type        = string
-  default     = ""
-}
-
 variable "use_install_dir_option" {
   description = "Use --install-dir option to consolidate VSatellite installation"
   type        = bool
@@ -110,25 +104,6 @@ variable "vsatellite_install_dir" {
     condition     = can(regex("^/[a-zA-Z0-9_/-]+$", var.vsatellite_install_dir))
     error_message = "Install directory must be an absolute path."
   }
-}
-
-variable "vsatellite_api_key" {
-  description = "CyberArk API key for VSatellite registration (will be stored in SSM Parameter Store)"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "vsatellite_name" {
-  description = "Name for the VSatellite instance in CyberArk console"
-  type        = string
-  default     = ""
-}
-
-variable "cyberark_tenant_url" {
-  description = "CyberArk tenant URL (e.g., https://api.venafi.cloud)"
-  type        = string
-  default     = "https://api.venafi.cloud"
 }
 
 # Network and security variables

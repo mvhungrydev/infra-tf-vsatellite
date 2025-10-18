@@ -1,4 +1,5 @@
 # Example Terraform variables for VSatellite deployment
+# This prepares the system and downloads vsatctl - VSatellite installation is manual
 # Copy this file to terraform.tfvars and modify the values as needed
 
 # AWS Configuration
@@ -15,9 +16,9 @@ instance_type = "m7i-flex.large"      # Free Tier eligible AND meets VSatellite 
 use_ubuntu    = true                 # Use Ubuntu 22.04 LTS (recommended)
 
 # Storage configuration
-root_volume_size   = 30              # Root volume size in GB (minimum 15GB + OS)
-create_data_volume = true            # Create additional data volume
-data_volume_size   = 50              # Data volume size in GB
+root_volume_size   = 30              # Root volume size in GB (minimum 15GB, default 20GB)
+create_data_volume = true            # Create additional data volume (default: false)
+data_volume_size   = 50              # Data volume size in GB (default: 50GB)
 
 # Networking
 associate_public_ip = false          # Manual public IP control (overridden if Instance Connect enabled)
@@ -26,13 +27,9 @@ enable_instance_connect = true       # Enable EC2 Instance Connect (automaticall
 # SSH not needed - using AWS Session Manager console connection
 
 # VSatellite configuration
-use_install_dir_option  = true       # Use --install-dir option (recommended)
-vsatellite_install_dir  = "/opt/vsatellite" # Custom installation directory
-vsatellite_version      = ""         # Leave empty for latest version
-vsatellite_name         = "vsatellite-dev" # Name in CyberArk console
-
-cyberark_tenant_url = "https://api.venafi.cloud"
-# vsatellite_api_key  = "your-api-key-here"  # Will be stored securely in SSM
+# Note: This deployment only downloads vsatctl to /tmp/vsatellite - manual installation required
+use_install_dir_option  = true       # Use --install-dir option when manually installing (recommended)
+vsatellite_install_dir  = "/opt/vsatellite" # Custom installation directory for manual installation
 
 # Monitoring and management
 enable_detailed_monitoring     = false  # Enable detailed CloudWatch monitoring
